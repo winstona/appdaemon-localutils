@@ -39,7 +39,7 @@ class ADSwitch:
 
 
 class ADSelect:
-  def __init__(self, base_obj, entity_name, options, initial_state='retain', event_handler=None, attributes={}):
+  def __init__(self, base_obj, entity_name, options, initial_state='retain', event_handler=None, call_event_handler_on_init=False, attributes={}):
     self.entity_id = f"select.{entity_name}"
     self.event_handler = event_handler
     self.base_obj = base_obj
@@ -50,6 +50,9 @@ class ADSelect:
       initial_state = options[0]
     base_obj.set_state(self.entity_id, state=initial_state, attributes={**{'options': options}, **attributes})
     base_obj.listen_event(self.event_listen, event="call_service", domain="select")
+
+    if call_event_handler_on_init and event_handler is not None:
+      self.event_handler(self.entity_id, 'state', None, initial_state, {})
 
   def event_listen(self, event_name, *args):
     if self.entity_id not in args[0]['service_data']['entity_id']:
